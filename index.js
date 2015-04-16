@@ -9,9 +9,11 @@ server.connection({
 	}
 });
 
+
 // this is where you include your dependencies 
 var plugins = [
 	{ register: require('./routes/users.js') },
+	{ register: require('./routes/sessions.js') },
 	{ // give options so it knows which database your'e referring to
 		register: require('hapi-mongodb'), 
 		options: {
@@ -20,6 +22,15 @@ var plugins = [
 				"db": {
 					"native_parser": false
 				}
+			}
+		}
+	},
+	{
+		register: require('yar'),
+		options: {
+			cookieOptions: {
+				password: 'password',
+				isSecure: false // you can use it without HTTPS
 			}
 		}
 	} 

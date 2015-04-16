@@ -19,7 +19,7 @@ exports.register = function (server, options, next) {
 			}
 		},
 		{
-			// creating a user 
+			// creating a new user 
 			method: 'POST',
 			path: '/users',
 			config: {
