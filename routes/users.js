@@ -25,7 +25,7 @@ exports.register = function (server, options, next) {
 			config: {
 				handler: function(request, reply) {
 					var db = request.server.plugins['hapi-mongodb'].db;
-					var newUser = request.payload.newUser; 
+					var newUser = request.payload.user; 
 
 					// https://www.npmjs.com/package/bcrypt
 					Bcrypt.genSalt(10, function(err, salt) {
@@ -54,7 +54,7 @@ exports.register = function (server, options, next) {
 				},
 				validate: {
 					payload: {
-						newUser: {
+						user: {
 							username: Joi.string().min(3).max(20).required(),
 							email: Joi.string().email().max(50).required(),
 							password: Joi.string().min(5).max(20).required()

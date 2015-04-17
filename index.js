@@ -5,7 +5,10 @@ server.connection({
 	host: '0.0.0.0',
 	port: process.env.PORT || 3000, // process.env.PORT is an environment variable prepared by Heroku Deployment
 	routes: {
-		cors: true // cross-origin resource sharing 
+		cors: {
+			headers: ['Access-Control-Allow-Credentials'],
+      credentials: true 
+		}
 	}
 });
 

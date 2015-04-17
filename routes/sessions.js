@@ -1,5 +1,5 @@
 var Bcrypt = require('bcrypt'); 
-// var Joi = require('joi');
+var Auth = require('./auth');
 
 exports.register = function (server, options, next) {
 	// include routes
@@ -12,7 +12,7 @@ exports.register = function (server, options, next) {
 				var db = request.server.plugins['hapi-mongodb'].db; // load the mongodb
 				var user = request.payload.user; // read the payload
 
-				// Find is the user exists
+				// Find if the user exists
 				db.collection('users').findOne({"username": user.username}, function(err, userMongo) {
 					if (err) {
 						return reply('Internal MongoDB error', err);
@@ -42,7 +42,7 @@ exports.register = function (server, options, next) {
 							  		return reply('Internal MongoDB Error', err);
 							  	}
 
-							  	// Store the session informatio in the Browser Cookie using Yar
+							  	// Store the session information in the Browser Cookie using Yar
 							  	request.session.set('hapi_twitter_session', {
 							  		"session_key": randomkey,
 							  		"user_id": userMongo._id
@@ -56,6 +56,38 @@ exports.register = function (server, options, next) {
 					});
 				});	
 			} 
+		},
+		{
+			method: 'GET',
+			path: '/authenticated',
+			handler: function(request, reply){
+				Auth.authenticated(request, function(result){
+					reply(result);
+				});
+			}
+		},
+		{
+			// Logging out / deleting session
+			method: 'DELETE',
+			path: '/sessions',
+			handler: function(request, reply) {
+				// obtain the session from the browser
+				var session = request.session.get('hapi_twitter_session');
+				// initial db
+				var db = request.server.plugins['hapi-mongodb'].db;
+
+				if (!session) {
+					return reply({"message": "Already logged out"});
+				}
+
+        // search for the same session in the db
+        // remove that session in the db
+        db.collection('sessions').remove({ "session_id": session.session_key }, function(err, writeResult){
+          if (err) { return reply('Internal MongoDB error', err); }
+
+          reply(writeResult);
+        });
+			},
 		}
 	]);
 
