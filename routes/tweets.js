@@ -59,8 +59,25 @@ exports.register = function (server, options, next) {
 				}	 
 			}	
 		},
+    { 
+    	// Reading a single tweet        
+      method: 'GET',
+      path: '/tweets/{tweet_id}',
+      handler: function(request, reply) {
+        var id = encodeURIComponent(request.params.tweet_id);
+        var db = request.server.plugins['hapi-mongodb'].db;
+        var ObjectID = request.server.plugins['hapi-mongodb'].ObjectID;
+        db.collection('tweets').findOne({ "_id" : ObjectID(id)}, function(err, tweet){
+          if (err) { 
+          	return reply('Internal MongoDB error', err); 
+          }
+
+          reply(tweet);
+        })
+      }
+    },
 		{
-			// Logging out / deleting session
+			// Delete a tweet
 			method: 'DELETE',
 			path: '/tweets/{tweet_id}',
 			handler: function(request, reply) {
@@ -69,7 +86,9 @@ exports.register = function (server, options, next) {
         var ObjectID = request.server.plugins['hapi-mongodb'].ObjectID;
 
         db.collection('tweets').remove({ "_id" : ObjectID(id)}, function(err, writeResult){
-          if (err) { return reply('Internal MongoDB error', err); }
+          if (err) { 
+          	return reply('Internal MongoDB error', err); 
+          }
 
           reply(writeResult);
         });
