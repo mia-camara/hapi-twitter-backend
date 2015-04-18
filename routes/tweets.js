@@ -71,7 +71,6 @@ exports.register = function (server, options, next) {
           if (err) { 
           	return reply('Internal MongoDB error', err); 
           }
-
           reply(tweet);
         })
       }
@@ -89,10 +88,28 @@ exports.register = function (server, options, next) {
           if (err) { 
           	return reply('Internal MongoDB error', err); 
           }
-
           reply(writeResult);
         });
       }
+		},
+		{
+		  // Retrieve all tweets by a specific user
+		  method: 'GET',
+		  path: '/users/{username}/tweets',
+		  handler: function(request, reply) {
+		    var db = request.server.plugins['hapi-mongodb'].db;
+		    var username = encodeURIComponent(request.params.username);
+
+		    db.collection('users').findOne({ "username": username }, function(err, user) {
+		      if (err) { return reply('Internal MongoDB error', err); }
+
+		      db.collection('tweets').find({ "user_id": user._id }).toArray(function(err, tweets) {
+		        if (err) { return reply('Internal MongoDB error', err); }
+
+		        reply(tweets);
+		      });
+		    })
+		  }
 		}
 	]);
 
